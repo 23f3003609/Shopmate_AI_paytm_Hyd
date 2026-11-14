@@ -1,160 +1,382 @@
-# ShopMate AI — Hackathon Prototype
+# ShopMate AI
 
-ShopMate AI is a synthetic-data prototype for the Paytm Build for India AI Hackathon (Hyderabad). It demonstrates six merchant-growth workflows: voice billing, personalized offers, restock recommendations, cash-leak signals, daily briefing, and campaign impact tracking.
+**An AI-powered growth partner for neighbourhood retailers.**
 
-> **Demo safety:** All merchants, customer histories, stock counts, sales and campaign results are synthetic. The QR is a demo payload, no UPI payment is initiated, no supplier order is transmitted, and no customer message is sent. Cash Leak Check is an anomaly signal, not proof of wrongdoing.
+ShopMate AI is a merchant-first prototype built for the Paytm Build for India AI Hackathon in Hyderabad. It brings everyday kirana-store workflows into one workspace: voice-assisted billing, customer offers and cashback, inventory restocking, payment announcements, business health checks, and daily action recommendations.
 
-## Run locally
+> **Prototype notice:** ShopMate uses synthetic store data and simulated customer payments, cashback, supplier orders, and notifications. It does not initiate UPI/Paytm payments, contact suppliers, or send SMS/WhatsApp messages. Do not enter real customer or payment data.
 
-Requires Python 3.10+.
+---
+
+## Contents
+
+- [What ShopMate does](#what-shopmate-does)
+- [Features and how to use them](#features-and-how-to-use-them)
+- [Getting started](#getting-started)
+- [Sign-in accounts](#sign-in-accounts)
+- [Merchant workflow](#merchant-workflow-end-to-end)
+- [Customer workflow](#customer-workflow)
+- [AI and voice capabilities](#ai-and-voice-capabilities)
+- [Authentication and sessions](#authentication-and-sessions)
+- [Resetting prototype activity](#resetting-prototype-activity)
+- [Configuration](#configuration)
+- [Project structure](#project-structure)
+- [API overview](#api-overview)
+- [Troubleshooting](#troubleshooting)
+- [Prototype limitations and security](#prototype-limitations-and-security)
+
+## What ShopMate does
+
+Small retailers often manage billing, inventory, customer retention, and supplier follow-ups separately. ShopMate demonstrates how an AI-assisted merchant workspace can connect those activities using a shared prototype ledger.
+
+The design is **merchant-first**: the merchant creates the bill and manages the sale. A customer can sign in to view an assigned bill, complete the simulated payment, see cashback history, and receive offers in their ShopMate inbox.
+
+## Features and how to use them
+
+### 1. Overview dashboard
+
+A single view of the store's synthetic operating picture:
+
+- Sales and transaction summary.
+- Average bill and recent transaction activity.
+- Product stock and low-stock signals.
+- Shortcuts into merchant workflows.
+
+The figures are illustrative and update as you complete actions in the prototype.
+
+### 2. Voice Billing
+
+Create an itemised bill by speaking or typing an order.
+
+1. Open **Voice Billing**.
+2. Enter an order such as `2 milk, 1 bread` or use the microphone.
+3. Choose the recognition language where available (English/Telugu).
+4. Review the recognised products, quantities, prices, and bill total.
+5. Select the registered customer who will pay. Selecting the correct customer is important for associating the payment and any eligible cashback.
+6. Generate the bill and wait for customer payment.
+7. The customer opens their account, selects the pending bill, enters the exact payable amount, and confirms the simulated payment.
+8. The merchant workspace reconciles the bill, stock, sales, payment history, and Soundbox announcement.
+
+A bill remains in **Waiting for customer payment** until the customer payment action succeeds. Stock and sales are updated only after successful payment. Paid bills remain visible in payment history.
+
+### 3. Smart Offers
+
+Create personalised cashback offers for customers who have opted in to promotional messages.
+
+1. Open **Smart Offers**.
+2. Select an eligible customer and a product.
+3. Enter the cashback amount and optionally write a message.
+4. Select **Send offer**.
+5. The offer appears in the merchant's Customer offers list and in the customer's ShopMate inbox.
+6. The dashboard shows eligible customers, offers sent, redeemed offers, and redemption rate based on the offer ledger.
+
+An offer can be redeemed against a matching product on a subsequent qualifying bill. Cashback is reserved for the bill and marked redeemed only after the customer completes payment. A single bill can apply at most one matching offer.
+
+Customers who have not opted in are excluded from promotional offer delivery. Customers can manage their consent from their account.
+
+### 4. Restock Assist
+
+Review products that are at or below their reorder thresholds and create a simulated supplier purchase order.
+
+1. Open **Restock Assist**.
+2. Review low-stock products and suggested replenishment quantities.
+3. Create a purchase order for the required product and quantity.
+4. Review the order in supplier order history.
+5. Update its status through the available lifecycle controls to demonstrate the workflow.
+
+Supplier status changes are manual prototype actions. No order is sent to a real supplier.
+
+### 5. Cash Leak Check
+
+Review collection variances and a structured investigation checklist. This is an operational prompt to help a merchant check records such as QR ownership, settlement information, cash-book entries, and missed payment confirmations.
+
+**A variance is only a signal to investigate; it is not evidence of theft or wrongdoing.**
+
+### 6. Daily Briefing
+
+Generate a short store briefing and recommended next action.
+
+1. Open **Daily Briefing**.
+2. Select English or Telugu.
+3. Generate the briefing.
+4. Use **Listen** to hear the briefing.
+5. Review the suggested action before selecting **Yes, take action**.
+
+Depending on the generated recommendations, the prototype can create local restock orders or send ShopMate inbox offers to opted-in customers. These actions remain within the local prototype.
+
+### 7. Impact Tracker
+
+Review offer activity and illustrative campaign impact, including offer delivery/redemption and cashback cost. These are prototype ledger calculations, not independently measured causal campaign results or actual Paytm campaign analytics.
+
+### 8. Customer workspace
+
+Customers can:
+
+- View pending bills assigned to their account.
+- Pay the exact amount requested in the simulated payment flow.
+- View previous payments and cashback used.
+- Read merchant offers and notifications.
+- Manage promotional opt-in consent.
+- Log out of their account.
+
+### 9. Payment Soundbox
+
+When a customer completes a pending bill payment, ShopMate emits a payment event to the merchant workspace. The merchant browser can announce the amount and customer using Sarvam text-to-speech when configured, with browser speech synthesis as a fallback. Enable browser sound when prompted.
+
+This is a software simulation; it is not connected to physical Paytm Soundbox hardware.
+
+## Getting started
+
+### Requirements
+
+- Python 3.10 or newer.
+- pip.
+- A modern browser (Chrome or Edge recommended).
+- Optional: a Sarvam AI API key for AI text and voice features.
+
+### 1. Clone the repository
 
 ```bash
-cd shopmate-ai
-python -m venv .venv
-# Windows: .venv\\Scripts\\activate
-# macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env  # Windows: copy .env.example .env
-# Edit .env and set SARVAM_API_KEY
-uvicorn main:app --reload
+git clone <YOUR_REPOSITORY_URL>
+cd <REPOSITORY_FOLDER>
 ```
 
-Open http://127.0.0.1:8000.
+### 2. Create and activate a virtual environment
 
-## Sarvam AI integration
+**Windows PowerShell**
 
-- **Chat completion:** `POST https://api.sarvam.ai/v1/chat/completions`, model `sarvam-105b`, used for structured bill extraction and offer/briefing language.
-- **Speech to text:** `POST https://api.sarvam.ai/speech-to-text`, Saaras v4, English/Telugu.
-- **Text to speech:** `POST https://api.sarvam.ai/text-to-speech`, Bulbul v3.
-
-The API key stays on the backend in `.env`; it is never sent to the browser. If no key is configured, dashboard, synthetic data, inventory logic and typed billing fallback still work. Voice features and live LLM wording require a valid key and available Sarvam credits.
-
-## Demo walkthrough
-
-1. Overview: show synthetic sales and stock alerts.
-2. Voice Billing: type `2 milk, 1 bread, 1 atta` or record a short order in English/Telugu. Review the itemized bill, optionally select the customer to apply one eligible offer, then click **Confirm purchase & record payment (demo)**. Generating a bill is only a draft; sales and stock change only after merchant confirmation.
-3. Smart Offers: generate offers; non-opted-in customer Kiran is excluded.
-4. Restock Assist: create a demo purchase order, then scroll to Supplier Order History to view its PO ID, supplier, product, quantity, amount, timestamp and status. Use the status dropdown to demonstrate Created → Confirmed → Dispatched → Delivered. These are manual demo statuses, not supplier acknowledgements.
-5. Cash Leak Check: explain the afternoon shift's 72% collection ratio and review checklist.
-6. Daily Briefing: generate English/Telugu briefing, listen via Sarvam TTS, and approve the simulated action.
-7. Impact Tracker: compare offer/control repeat rates and incremental sales minus cashback cost.
-
-## Edge cases included
-
-- Empty or unrecognized bill input returns a clarification rather than a zero-value bill.
-- Unknown catalog products are not priced or silently added.
-- Quantities are clamped to 1–50; manual supplier orders are validated to 1–500.
-- Sarvam calls have timeouts and readable API errors; the API key is optional for offline demo paths.
-- Customers without opt-in are skipped for offers.
-- No-stock-alert case returns a healthy-state message. Supplier purchase-order records are saved locally in `data/supplier_orders.json`; lifecycle status changes are simulated and do not prove supplier receipt or shipment. No real payment, supplier order or customer message is sent.
-
-## Important prototype limitation
-
-Most server demo state is in memory and resets on restart. Supplier order history is the exception: it is persisted locally in `data/supplier_orders.json` so created demo POs remain visible after a restart. This is intentionally not a full model-training or production integration. Replace synthetic records and in-memory state with approved Paytm merchant APIs and a persistent database only after authorization and security review.
-
-
-## Merchant and customer demo flow (inspired by Munshi AI)
-
-Open the app and choose a role at the login screen. Demo credentials:
-
-- Merchant: `merchant` / `1111`
-- Anita: `anita` / `2222`
-- Rahul: `rahul` / `3333`
-- Sana: `sana` / `4444`
-- Kiran (not opted in): `kiran` / `5555`
-
-As merchant, open Smart Offers, select an opted-in customer, product and cashback, then Send offer. Log out and sign in as that customer to see the offer in the notification center and manage promotional consent. Customers do not build carts or check out in this prototype. The merchant handles the purchase at the counter: open Voice Billing, record/type the customer's order, select the registered customer, review the bill and generate a pending payment request. Confirmation updates inventory, sales, transaction count and recent payments; any eligible offer for that customer and a matching product is redeemed once. The merchant Soundbox receives the payment event and announces it (click Enable sound before confirming; Sarvam TTS is used when configured, with browser speech as fallback).
-
-All purchases and offers are simulated. No real UPI/Paytm transaction, SMS/WhatsApp delivery, or external payment settlement occurs. Merchant/customer demo activity is stored in `data/merchant_customer_demo.json`. The Soundbox event feed uses browser polling, not a live Paytm/WebSocket integration. Demo PINs are not production authentication.
-
-## Customer-confirmed payment flow (updated)
-1. Merchant creates a bill through Voice Billing and selects a known customer when possible.
-2. Clicking **Generate bill & wait for customer payment** creates a pending bill. The merchant dashboard shows `WAITING`; stock and sales do not change yet.
-3. The customer signs in, sees the assigned pending bill, enters the bill amount and clicks Pay (demo). The server requires the amount to match exactly.
-4. Only after successful payment does ShopMate mark the bill paid, redeem one eligible offer, decrement stock, update sales/transactions and emit the Soundbox event.
-5. The merchant browser polls events every 2.5 seconds and announces the payment when Soundbox sound is enabled.
-
-New customers can create an account from the login screen. Their customer record and demo credentials are persisted locally and automatically appear in merchant customer dropdowns after refresh/polling. For a new buyer, register them first and select their customer record before generating the bill. Customer-payment requests require a registered customer selection. Unassigned walk-in bills are not exposed in customer dashboards, because they cannot safely be associated with a customer wallet or cashback offer.
-
-All payment processing remains simulated. The amount field is a demo confirmation, not a live UPI transfer or Paytm gateway transaction.
-
-### Microphone recording compatibility fix
-Chrome records microphone audio as `audio/webm;codecs=opus`, which Saaras v4 rejects. The Voice Billing screen now decodes that browser recording and converts it in the browser to mono 16 kHz PCM WAV before uploading it to `/api/voice/transcribe`. The backend validates the WAV content type and forwards the supported format to Sarvam. No FFmpeg installation is required.
-
-## Cashback-aware pending bill flow
-- When a merchant generates a customer-payment bill, selecting a registered customer is mandatory. ShopMate checks for one unused offer belonging to that customer that matches an item in the bill.
-- The matching cashback is reserved for that bill and the customer sees subtotal, cashback deduction, and the recalculated amount to pay before paying.
-- The customer must pay the discounted payable amount. The offer is marked redeemed only after successful payment; the payment ledger stores subtotal, cashback, and net amount paid.
-- The customer dashboard shows available cashback, cashback used, and past payments with the cashback deduction.
-- The merchant bill feed and payment feed show subtotal, cashback reserved/used, and net amount received. Merchant sales and cashback-spent totals are updated using the net payment and redeemed cashback.
-- Cashback is applied to at most one matching offer per bill. This remains a local simulated demo ledger, not a real Paytm/UPI cashback or payment settlement.
-
-
-### Cashback/customer association safeguard
-- The merchant must select the customer who will log in to pay before generating a customer-payment bill. The API rejects unassigned customer-payment requests.
-- Unassigned legacy walk-in bills are no longer shown to every customer account. This prevents one customer from seeing or paying another person’s bill and prevents cashback from being attributed to the wrong wallet.
-- A payment completed earlier as a walk-in sale has no customer ID and cannot be retroactively counted as that customer’s cashback redemption. Generate a new bill with the correct customer selected to apply the offer.
-
-## Latest voice billing and cashback fixes
-- Voice Billing now defaults to English speech recognition and includes an English/Telugu language selector.
-- The catalog parser also recognizes common Telugu product names (including milk, bread, and atta) and merges deterministic catalog matches with AI extraction so a partial LLM response does not silently drop line items.
-- Merchant customer selectors preserve the selected customer during periodic dashboard refreshes; they no longer reset to Walk-in every few seconds.
-- Customer offer notifications now show Reserved/Redeemed status and identify the bill where cashback was used.
-- Merchant Smart Offers and bill feed use the live demo offer/payment ledger and show cashback reserved/used plus the final amount due/received.
-
-## SQLite-backed dashboard synchronization (November 2026)
-
-ShopMate now maintains a local SQLite ledger at `data/shopmate.db` (`entity_records` plus an append-only `activity_log`). It records product/inventory snapshots, customers, demo users, consent, offers, pending bills, payments, notifications, supplier orders, merchant dashboard state and business events. The existing JSON demo file is retained as a compatibility backup/import source; SQLite snapshots are restored on startup after the database has been initialized. No external database service is required.
-
-The merchant Overview, Smart Offers, Impact Tracker, Restock Assist, customer inbox/wallet and payment feeds are refreshed from the shared server-side demo state and persisted SQLite ledger. Smart Offer counts are derived from sent and redeemed offer records, not fixed display constants.
-
-### Daily Briefing actions
-- **Listen** requests Sarvam text-to-speech when configured and falls back to browser speech synthesis when Sarvam is unavailable.
-- **Yes, take action** creates local demo purchase orders for low-stock products and sends ShopMate inbox cashback offers to opted-in at-risk customers. It avoids creating a duplicate open restock order or duplicate active Daily Briefing offer for the same customer.
-- These are recorded demo actions only: no real supplier order, SMS, WhatsApp or Paytm message is sent.
-
-### Cash Leak Check verification checklist
-The checklist is a manual investigation aid for a shift collection variance, not an automated finding of theft. It asks the merchant to verify QR ownership, compare payment settlement with the cash book, check missed payment confirmations and discuss the variance with shift staff. Checked steps are saved in the SQLite activity log. A shortcut is also available from the Overview dashboard.
-
-### Run
 ```powershell
-cd .\shopmate-ai
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+**macOS / Linux**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
+python -m pip install --upgrade pip
 pip install -r requirements.txt
+```
+
+### 4. Configure environment variables
+
+Copy the example file:
+
+**Windows PowerShell**
+
+```powershell
+Copy-Item .env.example .env
+```
+
+**macOS / Linux**
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and add your Sarvam API key if you want to use the Sarvam-powered AI and voice features. Never commit `.env` or share your API key.
+
+### 5. Start the application
+
+Run this command from the directory containing `main.py`:
+
+```bash
 uvicorn main:app --reload
 ```
-The SQLite database is created automatically in `shopmate-ai/data/shopmate.db` on first startup. Keep the `data` folder writable and back it up with the project data.
 
-### Payment completion and live dashboard reconciliation (14 Nov 2026)
-- The merchant's active bill panel now detects the matching paid bill from the shared merchant summary, replaces the waiting state with a payment-completed receipt, clears the order text, and resets the draft for the next customer.
-- The paid bill remains available in Pending customer payments as paid history; it is not deleted.
-- Smart Offers sent, redeemed, and redemption-rate counters are calculated from the same offer ledger used to render customer offer cards.
-- Overview impact counters use the same offer metrics, and merchant refreshes are serialized to prevent overlapping polling requests from applying stale responses.
-- SQLite continues to persist offers, bills, payments, products, customers, dashboard state, notifications, events, and the activity log in `data/shopmate.db`.
+Open **http://127.0.0.1:8000** in your browser.
 
+To stop the server, press `Ctrl + C` in the terminal.
 
-## Merchant payment and offer reconciliation fix (14 Nov 2026)
+## Sign-in accounts
 
-- The merchant ledger now repairs missing offer entities from persisted customer offer notifications, preserving redeemed status and bill references. This addresses legacy records where the customer inbox showed a redeemed offer but the merchant offer ledger/counters were empty.
-- Explicit SQLite ledgers (`offers`, `bills`, `payments`, `notifications`) are maintained alongside the generic entity ledger and activity log.
-- Merchant summary and Overview metrics are derived from the reconciled offer and payment records.
-- The merchant's active bill panel is reconciled against its bill reference on each dashboard refresh. Once payment is confirmed, the waiting message is replaced by a payment-completed receipt, and the draft input is cleared so the next bill can be created.
-- Paid bills remain in history; they are not deleted.
+The project includes preconfigured prototype accounts:
 
+| Role | Username | PIN |
+|---|---|---|
+| Merchant | `merchant` | `1111` |
+| Customer | `anita` | `2222` |
+| Customer | `rahul` | `3333` |
+| Customer | `sana` | `4444` |
+| Customer | `kiran` | `5555` |
 
-### Offer synchronization verification build (14 Nov 2026)
-- `/api/version` identifies the running build as `offer-sync-verified-2026-11-14`.
-- Sending an offer explicitly persists the offer and customer notification before emitting the event.
-- Merchant summary reconciles and persists the ledger before returning sent/redeemed/eligible counts.
-- Merchant UI immediately renders the returned offer, then refreshes all dashboard metrics from the API.
-- The root page sends no-cache headers to prevent stale HTML from being reused.
+New customer registration is available from the login screen. The merchant customer selector is populated from the current customer records. Use synthetic information only.
 
-## Token-based login and prototype reset (14 Nov 2026)
+## Merchant workflow end-to-end
 
-- Merchant and customer login now issue a cryptographically random Bearer token.
-- Tokens have a fixed **5-minute lifetime** from login (not sliding). Expired or invalid tokens receive HTTP 401 and the browser returns to the login screen.
-- The browser sends the token in the `Authorization: Bearer <token>` header for protected API requests. Merchant and customer routes enforce their respective roles.
-- The merchant and customer logout actions call the logout endpoint to revoke the current token, then clear the browser's session token. The merchant Soundbox WebSocket also requires a valid merchant token.
-- The merchant sidebar includes **Reset test data**. After confirmation, this clears test transactions/payments, pending and paid bills, sent/redeemed offers, customer notifications, event/activity history, newly registered test customers, and supplier-order history. It also restores product stock and the original synthetic dashboard state.
-- Reset retains the prototype's eight synthetic products, five original sample customers, and the original demo login accounts. It does not delete source code, API configuration, or prototype assets.
-- Default demo credentials: `merchant / 1111`, `anita / 2222`, `rahul / 3333`, `sana / 4444`, `kiran / 5555`.
-- This remains a local hackathon prototype. The in-memory session store is appropriate for the single-process demo server; production deployment should use a shared session store, HTTPS, password hashing, CSRF protections where applicable, and stronger account provisioning.
+A simple way to demonstrate the complete experience:
+
+1. Sign in with the merchant account.
+2. Open **Smart Offers** and send Anita a cashback offer for a product (for example, Milk 500ml).
+3. Open **Voice Billing** and create a bill for Anita that includes the same product.
+4. Generate the bill and leave it waiting for payment.
+5. Sign out of the merchant account and sign in as Anita.
+6. Open the pending bill, check the cashback deduction and payable amount, then pay the exact amount.
+7. Sign back in as merchant.
+8. Verify that the bill is paid, the offer is redeemed, the inventory and sales have changed, and the payment announcement is available.
+9. Explore **Overview**, **Restock Assist**, **Cash Leak Check**, **Daily Briefing**, and **Impact Tracker**.
+
+## Customer workflow
+
+1. Sign in using one of the customer accounts or register a new prototype customer.
+2. Review any pending bill assigned to that account.
+3. Enter the exact payable amount and complete the simulated payment.
+4. Review cashback wallet and past payments.
+5. Open Offers & notifications to see merchant offers.
+6. Change promotional consent if needed.
+7. Use **Log out** to end the session.
+
+## AI and voice capabilities
+
+ShopMate integrates with Sarvam AI from the backend:
+
+- **Chat completion:** structured order interpretation and natural-language generation for offer/briefing workflows. Default model: `sarvam-105b`.
+- **Speech-to-text:** Saaras v4 for voice order transcription, with English/Telugu support in the app.
+- **Text-to-speech:** Bulbul v3 for spoken briefings and payment announcements.
+- **Fallbacks:** typed billing remains available without Sarvam; browser speech synthesis can be used for announcements when the Sarvam key or service is unavailable.
+
+The Sarvam API key is read by the backend from `.env`. It is not embedded in the browser code.
+Microphone recordings are converted in the browser to mono 16 kHz PCM WAV before upload, so no FFmpeg installation is required.
+
+## Authentication and sessions
+
+- Login issues a cryptographically random Bearer token.
+- Tokens have a fixed **5-minute lifetime** from login; activity does not extend the expiry.
+- Protected API calls send `Authorization: Bearer <token>`.
+- Merchant and customer endpoints enforce their respective roles.
+- Refreshing the page in the same browser tab restores the session from `sessionStorage`, provided the server-side token is still valid.
+- Logout calls the server to revoke the token and clears browser session data.
+- Expired or invalid tokens require the user to log in again.
+- The merchant Soundbox WebSocket checks the merchant token.
+
+Sessions are stored in server memory. Restarting the server invalidates active sessions. The in-memory session approach is intended for this single-process prototype, not multi-worker production deployment.
+
+## Resetting prototype activity
+
+The merchant sidebar includes **Reset test data**. After confirmation, it clears activity created while testing, including:
+
+- Current and historical prototype transactions and payments.
+- Pending and paid bills.
+- Offers sent and redeemed, and customer notifications.
+- Newly registered test customers.
+- Supplier order history and activity/event records.
+
+The reset retains the prototype seed data required to run the app, including the original sample products, sample customers, and original sign-in accounts. Product stock and synthetic dashboard state are restored to their initial values. The reset does not delete source code or environment configuration.
+
+## Configuration
+
+`.env.example` contains the supported settings:
+
+```dotenv
+SARVAM_API_KEY=your_sarvam_api_key_here
+SARVAM_CHAT_MODEL=sarvam-105b
+SARVAM_TTS_MODEL=bulbul:v3
+SARVAM_SPEAKER=shubh
+```
+
+| Variable | Purpose |
+|---|---|
+| `SARVAM_API_KEY` | API key for Sarvam AI services. Optional for non-AI prototype paths. |
+| `SARVAM_CHAT_MODEL` | Chat completion model name. |
+| `SARVAM_TTS_MODEL` | Text-to-speech model name. |
+| `SARVAM_SPEAKER` | Voice used for speech generation. |
+
+## Project structure
+
+```text
+.
+├── main.py                 # FastAPI app, APIs, business logic and authentication
+├── static/
+│   └── index.html          # Merchant/customer web interface
+├── data/
+│   ├── merchant_customer_demo.json # Legacy demo-state import/backup
+│   └── supplier_orders.json # Local supplier-order prototype data
+├── requirements.txt        # Python dependencies
+├── .env.example            # Environment variable template
+├── .gitignore
+├── render.yaml             # Example Render deployment configuration
+└── README.md
+```
+
+The app persists its shared demo ledger in the local SQLite database `data/shopmate.db`. It stores products, customers, demo users, consent, offers, bills, payments, notifications, supplier orders, merchant state, and events, with an append-only activity log. The SQLite state is restored on startup; `merchant_customer_demo.json` remains as a legacy import/backup, and supplier-order history is also kept in `supplier_orders.json`. Keep the `data` directory writable and back up these files if you want to preserve demo activity. This is a local, single-process prototype—not a shared production database.
+
+## API overview
+
+The FastAPI application exposes interactive API documentation at **http://127.0.0.1:8000/docs** while the server is running.
+
+Common route groups include:
+
+| Route | Purpose | Access |
+|---|---|---|
+| `POST /api/demo/login` | Authenticate and issue a token | Public |
+| `POST /api/demo/register` | Register a customer | Public |
+| `GET /api/demo/me` | Validate current session / identify user | Authenticated |
+| `POST /api/demo/logout` | Revoke current token | Authenticated |
+| `GET /api/dashboard` | Merchant overview data | Merchant |
+| `POST /api/bill` | Interpret/build a bill | Merchant |
+| `GET /api/demo/catalog` | Read product catalogue | Merchant |
+| `GET /api/demo/customers` | Read customer list | Merchant |
+| `POST /api/demo/offers/send` | Send a ShopMate inbox offer | Merchant |
+| `GET /api/demo/merchant/summary` | Merchant ledger and offer metrics | Merchant |
+| `POST /api/demo/merchant/create-pending-bill` | Create a customer payment request | Merchant |
+| `GET /api/demo/customer/pending-bills` | Read bills assigned to customer | Customer |
+| `POST /api/demo/customer/pay` | Complete simulated payment | Customer |
+| `GET /api/demo/offers` | Read customer's offers and notifications | Customer |
+| `POST /api/demo/merchant/reset-data` | Reset prototype activity | Merchant |
+| `GET /api/version` | Identify running build | Public |
+| `GET /api/health` | Health check | Public |
+
+For protected routes, include the token in the `Authorization` header:
+
+```http
+Authorization: Bearer <token>
+```
+
+## Troubleshooting
+
+**The browser returns to login after five minutes**
+
+This is expected: access tokens expire after five minutes. Sign in again.
+
+**The browser returns to login after restarting the server**
+
+Sessions are held in memory and are invalidated when the server process restarts. Sign in again.
+
+**Voice features are unavailable**
+
+Check that `.env` exists, `SARVAM_API_KEY` is valid, and the key has access/credits for the selected Sarvam models. Typed billing and non-AI dashboard functions can still be used.
+
+**Microphone access does not work**
+
+Use Chrome or Edge, allow microphone access for `localhost`, and check the browser's input-device selection. Localhost is treated as a secure context by modern browsers.
+
+**Port 8000 is already in use**
+
+Stop the other server or run `uvicorn main:app --reload --port 8001`, then open http://127.0.0.1:8001.
+
+**A token is rejected after a code/server restart**
+
+Log in again to receive a new token.
+
+## Prototype limitations and security
+
+ShopMate AI is a hackathon prototype, not a production payment or retail-management platform.
+
+- All initial store, customer, transaction, and campaign data is synthetic.
+- Customer payments are simulated confirmations; no UPI intent, payment gateway, bank transfer, or settlement is performed.
+- Cashback is a local ledger calculation, not money transferred to a wallet.
+- Customer notifications stay in the ShopMate interface; there is no SMS, WhatsApp, or Paytm app delivery.
+- Supplier purchase orders and lifecycle updates are local simulations.
+- Soundbox announcements use the browser/Sarvam speech layer; no physical Paytm Soundbox is controlled.
+- Five-minute Bearer sessions are stored in process memory. Default PINs are public prototype credentials, not secure production authentication.
+- The app should be deployed only for controlled demonstrations with synthetic data. Production use would require HTTPS, securely hashed credentials, a persistent/shared session store, proper database access controls, audit logging, rate limiting, and authorized payment/customer/supplier integrations.
+
+## Acknowledgements
+
+Built as a Paytm Build for India AI Hackathon prototype in Hyderabad. Sarvam AI powers the optional language and speech capabilities.
