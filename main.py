@@ -272,16 +272,33 @@ class OrderStatusRequest(BaseModel):
 
 @app.patch("/api/restock/orders/{order_id}")
 def update_supplier_order(order_id:str,body:OrderStatusRequest):
- allowed={"Created (demo)","Confirmed (demo)","Dispatched (demo)","Delivered (demo)","Cancelled (demo)"}
- if body.status not in allowed:
-  raise HTTPException(400,"Invalid demo order status")
+ # The UI historically sent bare values (e.g. "Delivered"), while stored
+ # orders use the canonical "(demo)" suffix. Accept both formats so older
+ # browser tabs and cached frontends continue to work.
+ status_aliases={
+  "created":"Created (demo)",
+  "created (demo)":"Created (demo)",
+  "confirmed":"Confirmed (demo)",
+  "confirmed (demo)":"Confirmed (demo)",
+  "dispatched":"Dispatched (demo)",
+  "dispatched (demo)":"Dispatched (demo)",
+  "delivered":"Delivered (demo)",
+  "delivered (demo)":"Delivered (demo)",
+  "cancelled":"Cancelled (demo)",
+  "cancelled (demo)":"Cancelled (demo)",
+  "canceled":"Cancelled (demo)",
+  "canceled (demo)":"Cancelled (demo)"
+ }
+ normalized_status=status_aliases.get(body.status.strip().casefold())
+ if not normalized_status:
+  raise HTTPException(400,"Invalid order status. Choose Created, Confirmed, Dispatched, Delivered, or Cancelled.")
  order=next((o for o in SUPPLIER_ORDERS if o["order_id"]==order_id),None)
  if not order: raise HTTPException(404,"Supplier order not found")
  # Receiving stock is an inventory event: apply it exactly once when the
  # order first reaches Delivered. Repeated updates must not double-count it.
- if order.get("stock_received") and body.status != "Delivered (demo)":
+ if order.get("stock_received") and normalized_status != "Delivered (demo)":
   raise HTTPException(400,"This order has already been received. Inventory was updated and the delivered status is locked.")
- if body.status == "Delivered (demo)" and not order.get("stock_received", False):
+ if normalized_status == "Delivered (demo)" and not order.get("stock_received", False):
   product=next((p for p in PRODUCTS if p["id"]==order["product_id"]),None)
   if not product:
    raise HTTPException(404,"Product linked to this order was not found")
@@ -293,7 +310,7 @@ def update_supplier_order(order_id:str,body:OrderStatusRequest):
   order["status_note"] = f"Demo delivery marked received. Inventory increased by {order['quantity']} {order['unit']}(s), from {order['stock_before_receipt']} to {order['stock_after_receipt']}. This is a simulated receipt, not a supplier confirmation."
  else:
   order["status_note"]="Status manually updated for demonstration only. No supplier acknowledgement or shipment event was received."
- order["status"]=body.status
+ order["status"]=normalized_status
  order["updated_at"]=datetime.now().astimezone().isoformat(timespec="seconds")
  save_supplier_orders()
  return {"ok":True,"order":order,"products":PRODUCTS,"message":("Demo delivery recorded and inventory updated." if order.get("stock_received") else "Demo order status updated.")}

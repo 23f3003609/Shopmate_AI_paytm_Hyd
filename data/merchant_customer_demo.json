@@ -1,0 +1,147 @@
+{
+  "offers": [
+    {
+      "id": "SHOP-OF-0001",
+      "customer_id": "C-104",
+      "customer": "Anita",
+      "product_id": "p1",
+      "product": "Milk 500ml",
+      "cashback": 20,
+      "message": "Enjoy ₹20 cashback on Milk 500ml on your next purchase at Ramesh Kirana!",
+      "status": "Sent to ShopMate inbox (demo)",
+      "created_at": "2026-11-14T14:06:32+05:30",
+      "redeemed": false
+    }
+  ],
+  "payments": [],
+  "pending_bills": [],
+  "events": [
+    {
+      "id": 1,
+      "type": "offer_received",
+      "at": "2026-11-14T14:06:32+05:30",
+      "customer_id": "C-104",
+      "customer": "Anita",
+      "offer_id": "SHOP-OF-0001",
+      "message": "Enjoy ₹20 cashback on Milk 500ml on your next purchase at Ramesh Kirana!"
+    }
+  ],
+  "next_bill": 1,
+  "next_event": 2,
+  "next_offer": 2,
+  "next_payment": 1,
+  "consent": {},
+  "notifications": {
+    "C-104": [
+      {
+        "id": "SHOP-OF-0001",
+        "title": "New offer from Ramesh Kirana",
+        "message": "Enjoy ₹20 cashback on Milk 500ml on your next purchase at Ramesh Kirana!",
+        "cashback": 20,
+        "product": "Milk 500ml",
+        "created_at": "2026-11-14T14:06:32+05:30",
+        "read": false
+      }
+    ],
+    "C-117": [],
+    "C-121": [],
+    "C-132": []
+  },
+  "customers": [
+    {
+      "id": "C-104",
+      "name": "Anita",
+      "visits": 8,
+      "last_days": 9,
+      "usual": [
+        "Atta 5kg",
+        "Milk 500ml"
+      ],
+      "opted_in": true,
+      "avg_bill": 310
+    },
+    {
+      "id": "C-117",
+      "name": "Rahul",
+      "visits": 12,
+      "last_days": 16,
+      "usual": [
+        "Rice 1kg",
+        "Cooking Oil 1L"
+      ],
+      "opted_in": true,
+      "avg_bill": 230
+    },
+    {
+      "id": "C-121",
+      "name": "Sana",
+      "visits": 6,
+      "last_days": 24,
+      "usual": [
+        "Milk 500ml",
+        "Bread"
+      ],
+      "opted_in": true,
+      "avg_bill": 95
+    },
+    {
+      "id": "C-132",
+      "name": "Kiran",
+      "visits": 4,
+      "last_days": 5,
+      "usual": [
+        "Eggs (6)",
+        "Bread"
+      ],
+      "opted_in": false,
+      "avg_bill": 85
+    },
+    {
+      "id": "C-145",
+      "name": "Meena",
+      "visits": 10,
+      "last_days": 31,
+      "usual": [
+        "Toor Dal 1kg",
+        "Rice 1kg"
+      ],
+      "opted_in": true,
+      "avg_bill": 260
+    }
+  ],
+  "users": {
+    "merchant": {
+      "role": "merchant",
+      "name": "Ramesh Store",
+      "pin": "1111"
+    },
+    "anita": {
+      "role": "customer",
+      "name": "Anita",
+      "customer_id": "C-104",
+      "pin": "2222",
+      "opted_in": true
+    },
+    "rahul": {
+      "role": "customer",
+      "name": "Rahul",
+      "customer_id": "C-117",
+      "pin": "3333",
+      "opted_in": true
+    },
+    "sana": {
+      "role": "customer",
+      "name": "Sana",
+      "customer_id": "C-121",
+      "pin": "4444",
+      "opted_in": true
+    },
+    "kiran": {
+      "role": "customer",
+      "name": "Kiran",
+      "customer_id": "C-132",
+      "pin": "5555",
+      "opted_in": false
+    }
+  }
+}
